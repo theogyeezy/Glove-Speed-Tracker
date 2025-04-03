@@ -1,0 +1,57 @@
+# .gcloudignore
+# Exclude files from being uploaded to Google Cloud Platform
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Kubernetes
+kubernetes/
+
+# Large data files
+data/samples/
+output/
+
+# Local development
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Deployment scripts
+deploy.sh
+cloudbuild.yaml
+
+# Zip files
+*.zip
