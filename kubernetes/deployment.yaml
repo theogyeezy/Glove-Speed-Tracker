@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: glove-speed-tracker
+  labels:
+    app: glove-speed-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: glove-speed-tracker
+  template:
+    metadata:
+      labels:
+        app: glove-speed-tracker
+    spec:
+      containers:
+      - name: glove-speed-tracker
+        image: gcr.io/PROJECT_ID/glove-speed-tracker:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+        env:
+        - name: PORT
+          value: "5000"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+        - name: output-volume
+          mountPath: /app/output
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: glove-speed-tracker-data-pvc
+      - name: output-volume
+        persistentVolumeClaim:
+          claimName: glove-speed-tracker-output-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: glove-speed-tracker-service
+spec:
+  selector:
+    app: glove-speed-tracker
+  ports:
+  - port: 80
+    targetPort: 5000
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glove-speed-tracker-data-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: glove-speed-tracker-output-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,21 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/glove-speed-tracker:$COMMIT_SHA', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/glove-speed-tracker:$COMMIT_SHA']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - 'run'
+  - 'deploy'
+  - 'glove-speed-tracker'
+  - '--image=gcr.io/$PROJECT_ID/glove-speed-tracker:$COMMIT_SHA'
+  - '--region=us-central1'
+  - '--platform=managed'
+  - '--allow-unauthenticated'
+  - '--memory=2Gi'
+  - '--cpu=1'
+  - '--port=5000'
+  - '--set-env-vars=PORT=5000'
+images:
+- 'gcr.io/$PROJECT_ID/glove-speed-tracker:$COMMIT_SHA'
