@@ -34,15 +34,24 @@ glove_speed_tracker/
 │   ├── video_processor.py  # Video processing module
 │   ├── detector.py     # Glove detection module
 │   ├── tracker.py      # Object tracking module
-│   ├── speed_calc.py   # Speed calculation module
+│   ├── speed_calculator.py   # Speed calculation module
+│   ├── data_analyzer.py  # Data analysis module
 │   ├── visualizer.py   # Visualization module
-│   └── app.py          # Web application
+│   ├── ui.py           # User interface components
+│   ├── app.py          # Web application
+│   ├── cloud_deploy.py # Cloud deployment module
+│   └── tester.py       # Testing and optimization module
 ├── models/             # Trained ML models
 ├── output/             # Output files and results
 ├── tests/              # Unit and integration tests
 ├── docs/               # Documentation
 ├── ui/                 # User interface components
-└── deployment/         # Deployment configurations
+├── kubernetes/         # Kubernetes deployment configurations
+├── Dockerfile          # Docker container configuration
+├── docker-compose.yml  # Docker Compose configuration
+├── cloudbuild.yaml     # Google Cloud Build configuration
+├── deploy.sh           # Deployment script
+└── requirements.txt    # Python dependencies
 ```
 
 ## Installation
@@ -84,14 +93,29 @@ glove_speed_tracker/
 
 - [x] Project setup and environment configuration
 - [x] Video processing module implementation
-- [ ] Glove detection and tracking module
-- [ ] Speed calculation algorithms
-- [ ] Data analysis and model training
-- [ ] Visualization and reporting features
-- [ ] User interface development
-- [ ] Containerization and deployment preparation
-- [ ] Cloud deployment
-- [ ] Performance optimization
+- [x] Glove detection and tracking module
+- [x] Speed calculation algorithms
+- [x] Data analysis and model training
+- [x] Visualization and reporting features
+- [x] User interface development
+- [x] Containerization and deployment preparation
+- [x] Cloud deployment configuration
+- [x] Performance testing and optimization
+
+## Deployment
+
+The application can be deployed using the provided deployment script:
+
+```bash
+# For local deployment with Docker
+./deploy.sh --target local
+
+# For Google Cloud Run deployment
+./deploy.sh --target gcp-run --project YOUR_GCP_PROJECT_ID
+
+# For Kubernetes deployment
+./deploy.sh --target gcp-k8s --project YOUR_GCP_PROJECT_ID
+```
 
 ## Contributing
 
