@@ -1,0 +1,29 @@
+# Netlify configuration file
+# This file configures the build and deployment settings for Netlify
+
+[build]
+  # Directory to publish (the static site output)
+  publish = "build"
+  # Build command
+  command = "npm run build"
+
+# Redirects and rewrites
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and caching
+[[headers]]
+  for = "/*"
+    [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
+
+# Environment variables
+[build.environment]
+  NODE_VERSION = "16"
+  NPM_VERSION = "8"
