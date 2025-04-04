@@ -1,147 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { supabase } from '../supabaseClient';
 
 function ResultsPage() {
   const { videoId } = useParams();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [results, setResults] = useState(null);
-  const [videoStatus, setVideoStatus] = useState('processing');
-  const [videoUrl, setVideoUrl] = useState(null);
-  
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    // If no videoId is provided, redirect to upload page
-    if (!videoId) {
-      navigate('/upload');
-      return;
-    }
-    
-    // Check video status and get results if available
-    const checkStatus = async () => {
+    async function fetchResults() {
       try {
-        // Get video status
-        const { data: videoData, error: videoError } = await supabase
-          .from('videos')
-          .select('*')
-          .eq('id', videoId)
-          .single();
+        setLoading(true);
         
-        if (videoError) throw videoError;
-        
-        if (!videoData) {
-          throw new Error('Video not found');
-        }
-        
-        setVideoStatus(videoData.status);
-        
-        // If video is completed, get analysis results
-        if (videoData.status === 'completed') {
-          const { data: resultsData, error: resultsError } = await supabase
-            .from('analysis_results')
-            .select('*')
-            .eq('video_id', videoId)
-            .single();
+        // For demo purposes, generate simulated results
+        // In a real implementation, this would fetch actual results from Supabase
+        setTimeout(() => {
+          const simulatedResults = {
+            maxSpeed: Math.round(Math.random() * 40 + 60), // 60-100 mph
+            avgSpeed: Math.round(Math.random() * 20 + 50), // 50-70 mph
+            topAcceleration: Math.round(Math.random() * 30 + 40), // 40-70 ft/s²
+            movementPatterns: [
+              { name: 'Quick Snap', percentage: Math.round(Math.random() * 40 + 30) },
+              { name: 'Lateral Movement', percentage: Math.round(Math.random() * 30 + 20) },
+              { name: 'Vertical Extension', percentage: Math.round(Math.random() * 20 + 10) }
+            ],
+            speedOverTime: Array.from({ length: 10 }, () => Math.round(Math.random() * 40 + 40))
+          };
           
-          if (resultsError) throw resultsError;
-          
-          if (resultsData) {
-            setResults(resultsData);
-          } else {
-            // Simulate results for demo purposes
-            setResults({
-              max_speed: 45.2,
-              avg_speed: 32.7,
-              top_acceleration: 15.3,
-              movement_patterns: JSON.stringify([
-                {
-                  type: 'Quick Snap',
-                  count: 5,
-                  avgSpeed: 42.3
-                },
-                {
-                  type: 'Lateral Movement',
-                  count: 8,
-                  avgSpeed: 28.6
-                },
-                {
-                  type: 'Vertical Reach',
-                  count: 3,
-                  avgSpeed: 35.1
-                }
-              ])
-            });
-          }
-          
-          // Get public URL for the video
-          const { data: publicUrlData } = supabase
-            .storage
-            .from('videos')
-            .getPublicUrl(videoData.file_path);
-          
-          if (publicUrlData) {
-            setVideoUrl(publicUrlData.publicUrl);
-          }
-        } else if (videoData.status === 'error') {
-          throw new Error(videoData.error_message || 'An error occurred during video processing');
-        } else {
-          // For demo purposes, simulate completion after a delay
-          setTimeout(() => {
-            setVideoStatus('completed');
-            setResults({
-              max_speed: 45.2,
-              avg_speed: 32.7,
-              top_acceleration: 15.3,
-              movement_patterns: JSON.stringify([
-                {
-                  type: 'Quick Snap',
-                  count: 5,
-                  avgSpeed: 42.3
-                },
-                {
-                  type: 'Lateral Movement',
-                  count: 8,
-                  avgSpeed: 28.6
-                },
-                {
-                  type: 'Vertical Reach',
-                  count: 3,
-                  avgSpeed: 35.1
-                }
-              ])
-            });
-          }, 5000);
-        }
+          setResults(simulatedResults);
+          setLoading(false);
+        }, 1500);
         
-        setLoading(false);
       } catch (error) {
-        console.error('Error checking video status:', error);
-        setError(error.message);
+        console.error('Error fetching results:', error);
+        setError('Failed to load analysis results. Please try again.');
         setLoading(false);
       }
-    };
-    
-    checkStatus();
-    
-    // If video is still processing, check status every 3 seconds
-    if (videoStatus === 'processing') {
-      const interval = setInterval(checkStatus, 3000);
-      return () => clearInterval(interval);
     }
-  }, [videoId, videoStatus, navigate]);
-  
-  // Format speed value with units
-  const formatSpeed = (speed) => {
-    return `${speed} mph (${(speed * 0.44704).toFixed(1)} m/s)`;
-  };
-  
-  // Format acceleration value with units
-  const formatAcceleration = (acceleration) => {
-    return `${acceleration} m/s²`;
-  };
+    
+    fetchResults();
+  }, [videoId]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -152,142 +54,99 @@ function ResultsPage() {
           <h1 className="text-3xl font-bold mb-8 text-center">Analysis Results</h1>
           
           {loading ? (
-            <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <h2 className="text-xl font-semibold mb-2">Processing Your Video</h2>
-              <p className="text-gray-600">
-                This may take a few minutes depending on the video length and complexity.
-              </p>
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+              <span className="ml-3">Loading analysis results...</span>
             </div>
           ) : error ? (
-            <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8">
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6">
-                <strong className="font-bold">Error: </strong>
-                <span className="block sm:inline">{error}</span>
-              </div>
-              <div className="text-center">
-                <button
-                  onClick={() => navigate('/upload')}
-                  className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
-                >
-                  Try Again
-                </button>
-              </div>
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+              <span className="block sm:inline">{error}</span>
             </div>
-          ) : results ? (
-            <div className="max-w-5xl mx-auto">
-              <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold mb-4">Glove Speed Analysis</h2>
-                  
-                  {videoUrl && (
-                    <div className="mb-6">
-                      <h3 className="text-lg font-semibold mb-2">Analyzed Video</h3>
-                      <video 
-                        controls 
-                        className="w-full rounded-lg"
-                        src={videoUrl}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2">Maximum Speed</h3>
-                      <p className="text-3xl font-bold text-blue-600">
-                        {formatSpeed(results.max_speed)}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2">Average Speed</h3>
-                      <p className="text-3xl font-bold text-green-600">
-                        {formatSpeed(results.avg_speed)}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-2">Top Acceleration</h3>
-                      <p className="text-3xl font-bold text-purple-600">
-                        {formatAcceleration(results.top_acceleration)}
-                      </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-2xl font-bold mb-4">Speed Metrics</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Maximum Glove Speed</h3>
+                    <div className="flex items-end">
+                      <span className="text-4xl font-bold text-blue-600">{results.maxSpeed}</span>
+                      <span className="ml-2 text-gray-600">mph</span>
                     </div>
                   </div>
                   
-                  <div className="mb-8">
-                    <h3 className="text-xl font-semibold mb-4">Movement Patterns</h3>
-                    
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-white border border-gray-200">
-                        <thead>
-                          <tr>
-                            <th className="py-3 px-4 bg-gray-100 text-left">Pattern Type</th>
-                            <th className="py-3 px-4 bg-gray-100 text-left">Count</th>
-                            <th className="py-3 px-4 bg-gray-100 text-left">Average Speed</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {results.movement_patterns && JSON.parse(results.movement_patterns).map((pattern, index) => (
-                            <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                              <td className="py-3 px-4 border-b border-gray-200">{pattern.type}</td>
-                              <td className="py-3 px-4 border-b border-gray-200">{pattern.count}</td>
-                              <td className="py-3 px-4 border-b border-gray-200">{pattern.avgSpeed} mph</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  <div>
+                    <h3 className="text-lg font-semibold">Average Glove Speed</h3>
+                    <div className="flex items-end">
+                      <span className="text-4xl font-bold text-blue-600">{results.avgSpeed}</span>
+                      <span className="ml-2 text-gray-600">mph</span>
                     </div>
                   </div>
                   
-                  <div className="text-center">
-                    <button
-                      onClick={() => navigate('/upload')}
-                      className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
-                    >
-                      Analyze Another Video
-                    </button>
+                  <div>
+                    <h3 className="text-lg font-semibold">Top Acceleration</h3>
+                    <div className="flex items-end">
+                      <span className="text-4xl font-bold text-blue-600">{results.topAcceleration}</span>
+                      <span className="ml-2 text-gray-600">ft/s²</span>
+                    </div>
                   </div>
                 </div>
               </div>
               
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold mb-4">Performance Insights</h2>
-                <p className="mb-4">
-                  Based on the analysis of your catcher's glove movement, here are some key insights:
-                </p>
-                <ul className="list-disc pl-5 space-y-2 mb-4">
-                  <li>
-                    <strong>Speed Performance:</strong> The maximum glove speed of {formatSpeed(results.max_speed)} is 
-                    {results.max_speed > 40 ? ' excellent' : results.max_speed > 30 ? ' good' : ' average'} for a catcher.
-                  </li>
-                  <li>
-                    <strong>Consistency:</strong> The average speed is {((results.avg_speed / results.max_speed) * 100).toFixed(0)}% of the maximum speed, indicating 
-                    {(results.avg_speed / results.max_speed) > 0.7 ? ' good consistency' : ' room for improvement in consistency'}.
-                  </li>
-                  <li>
-                    <strong>Acceleration:</strong> The top acceleration of {formatAcceleration(results.top_acceleration)} shows 
-                    {results.top_acceleration > 15 ? ' excellent' : results.top_acceleration > 10 ? ' good' : ' average'} reaction time.
-                  </li>
-                </ul>
-                <p>
-                  For detailed training recommendations based on this analysis, please consult with your coach or trainer.
-                </p>
+                <h2 className="text-2xl font-bold mb-4">Movement Patterns</h2>
+                
+                <div className="space-y-4">
+                  {results.movementPatterns.map((pattern, index) => (
+                    <div key={index}>
+                      <div className="flex justify-between mb-1">
+                        <span className="font-semibold">{pattern.name}</span>
+                        <span>{pattern.percentage}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className="bg-blue-600 h-2.5 rounded-full" 
+                          style={{ width: `${pattern.percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-md p-6 md:col-span-2">
+                <h2 className="text-2xl font-bold mb-4">Speed Over Time</h2>
+                
+                <div className="h-64 flex items-end space-x-2">
+                  {results.speedOverTime.map((speed, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-blue-600 w-full rounded-t"
+                      style={{ height: `${speed}%` }}
+                    >
+                      <div className="h-full w-full hover:bg-blue-500 transition-colors duration-200"></div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between mt-2 text-sm text-gray-600">
+                  <span>Start</span>
+                  <span>Time</span>
+                  <span>End</span>
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <h2 className="text-xl font-semibold mb-2">Processing Your Video</h2>
-              <p className="text-gray-600">
-                Status: {videoStatus}
-              </p>
-              <p className="text-gray-600 mt-2">
-                This may take a few minutes depending on the video length and complexity.
-              </p>
-            </div>
           )}
+          
+          <div className="mt-8 text-center">
+            <Link 
+              to="/" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300"
+            >
+              Analyze Another Video
+            </Link>
+          </div>
         </div>
       </main>
       

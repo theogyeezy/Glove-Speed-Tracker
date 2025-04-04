@@ -12,53 +12,46 @@ function AboutPage() {
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold mb-8 text-center">About Glove Speed Tracker</h1>
           
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 mb-8">
-            <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <h2 className="text-2xl font-bold mb-4">Project Overview</h2>
             <p className="mb-6">
-              Glove Speed Tracker is dedicated to helping baseball catchers improve their performance through 
-              advanced computer vision technology. Our application analyzes video footage to calculate glove 
-              speed, track movement patterns, and provide actionable insights for players and coaches.
+              Glove Speed Tracker is a specialized computer vision application designed to analyze baseball catchers' performance by tracking and measuring glove speed. This tool helps coaches, players, and analysts gain insights into catching mechanics and reaction times.
             </p>
             
-            <h2 className="text-2xl font-bold mb-4">How It Works</h2>
-            <div className="mb-6">
-              <p className="mb-4">Our technology uses a multi-step process to analyze catcher performance:</p>
-              <ol className="list-decimal pl-6 space-y-2">
-                <li>Upload your video footage of baseball catchers in action</li>
-                <li>Our computer vision algorithms detect and track the catcher's glove throughout the video</li>
-                <li>Advanced calculations determine glove speed, acceleration, and movement patterns</li>
-                <li>Results are presented in an easy-to-understand dashboard with visualizations</li>
-                <li>Data-driven insights help identify strengths and areas for improvement</li>
-              </ol>
-            </div>
-            
             <h2 className="text-2xl font-bold mb-4">Key Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Speed Analysis</h3>
-                <p>Accurate measurements of maximum and average glove speed in both mph and m/s.</p>
-              </div>
-              
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Movement Tracking</h3>
-                <p>Detailed tracking of glove movement patterns and positioning throughout the video.</p>
-              </div>
-              
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Performance Insights</h3>
-                <p>Data-driven recommendations to improve reaction time and catching technique.</p>
-              </div>
-              
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Visual Reports</h3>
-                <p>Comprehensive visual reports that can be shared with coaches and teammates.</p>
-              </div>
-            </div>
+            <ul className="list-disc pl-5 space-y-2 mb-6">
+              <li>Video processing with support for multiple formats (MP4, AVI, MOV)</li>
+              <li>Advanced glove detection and tracking using computer vision</li>
+              <li>Precise speed and acceleration measurements</li>
+              <li>Movement pattern analysis and classification</li>
+              <li>Comprehensive visual reports and data export</li>
+            </ul>
             
-            <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">How It Works</h2>
+            <ol className="list-decimal pl-5 space-y-2 mb-6">
+              <li>Upload a video of a baseball catcher in action</li>
+              <li>Our system processes the video using computer vision algorithms</li>
+              <li>The catcher's glove is detected and tracked throughout the video</li>
+              <li>Speed, acceleration, and movement patterns are calculated</li>
+              <li>Results are presented in an easy-to-understand visual format</li>
+            </ol>
+            
+            <h2 className="text-2xl font-bold mb-4">Technology Stack</h2>
+            <p className="mb-6">
+              Glove Speed Tracker is built using modern technologies including:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 mb-6">
+              <li>React for the frontend user interface</li>
+              <li>Python with OpenCV for computer vision processing</li>
+              <li>TensorFlow/PyTorch for machine learning models</li>
+              <li>Supabase for backend storage and processing</li>
+              <li>Netlify for application hosting</li>
+            </ul>
+            
+            <div className="mt-8 text-center">
               <Link 
-                to="/upload" 
-                className="inline-block bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
+                to="/" 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300"
               >
                 Try It Now
               </Link>
