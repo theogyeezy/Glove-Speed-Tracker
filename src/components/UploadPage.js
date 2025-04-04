@@ -1,41 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { storageService, analysisService } from '../supabase/services';
 
 function UploadPage() {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState(null);
+  const [userId] = useState('anonymous'); // In a real app, this would come from authentication
   
   const handleFileChange = (e) => {
     if (e.target.files.length > 0) {
       setFile(e.target.files[0]);
+      setUploadError(null);
     }
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!file) {
-      alert('Please select a video file first');
+      setUploadError('Please select a video file first');
       return;
     }
     
-    // Simulate upload process
-    setIsUploading(true);
+    // Check file type
+    const fileType = file.type;
+    if (!['video/mp4', 'video/quicktime', 'video/x-msvideo'].includes(fileType)) {
+      setUploadError('Please upload a valid video file (MP4, MOV, or AVI)');
+      return;
+    }
     
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          // Redirect to results page after upload completes
-          window.location.href = '/results';
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+    // Check file size (max 100MB)
+    if (file.size > 100 * 1024 * 1024) {
+      setUploadError('File size exceeds the 100MB limit');
+      return;
+    }
+    
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    try {
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 500);
+      
+      // Upload file to Supabase storage
+      const uploadResult = await storageService.uploadVideo(file, userId);
+      
+      clearInterval(progressInterval);
+      
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'Failed to upload video');
+      }
+      
+      setUploadProgress(100);
+      
+      // Trigger video analysis
+      const analysisResult = await analysisService.triggerAnalysis(uploadResult.videoId);
+      
+      if (!analysisResult.success) {
+        throw new Error(analysisResult.error || 'Failed to start analysis');
+      }
+      
+      // Redirect to results page after upload completes
+      setTimeout(() => {
+        window.location.href = `/results/${uploadResult.videoId}`;
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadError(error.message);
+      setIsUploading(false);
+    }
   };
   
   return (
@@ -56,6 +101,13 @@ function UploadPage() {
                 <li>Processing may take a few minutes depending on video length</li>
               </ul>
             </div>
+            
+            {uploadError && (
+              <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                <strong className="font-bold">Error: </strong>
+                <span className="block sm:inline">{uploadError}</span>
+              </div>
+            )}
             
             <form onSubmit={handleSubmit}>
               <div className="mb-6">
@@ -119,6 +171,9 @@ function UploadPage() {
                       style={{ width: `${uploadProgress}%` }}
                     ></div>
                   </div>
+                  <p className="mt-2 text-sm text-gray-600">
+                    {uploadProgress < 100 ? 'Uploading video...' : 'Processing video...'}
+                  </p>
                 </div>
               ) : (
                 <button
